@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-community/async-storage'
 import { 
     View,
     Text,
@@ -10,56 +10,91 @@ import {
     KeyboardAvoidingView,
     Platform
 } from 'react-native';
+import api from '../services/api';
 
-export default class Main extends Component {
-    static navigationOptions = {
-        title: "Sis-Cozinha"
+export default function Login({ navigation }){
+    const [ matricula, setMatricula ] = useState('');
+    const [ senha, setSenha ] = useState('');
+
+    useEffect(() => {
+        AsyncStorage.getItem('token').then(token => {
+            if(token){
+                navigation.navigate('Cardapio', { token })
+            }
+        })
+    }, []);
+
+    async function salvar(valor){
+        await AsyncStorage.setItem('token', valor);
     }
 
-    render() {
-        return (
-            <KeyboardAvoidingView
-                behavior= 'padding'
-                enabled={Platform.OS === 'ios'}
-            >
-                <ImageBackground
-                    source={require( '../assets/background_login.jpeg' )}
-                    style={styles.imageBackground}>
-                    <View style={styles.pinkBox}>
-                        <Text style={styles.inText}>
+    async function handlelogin(){
+        await api.post('/authUser/login', {
+            enrollment: matricula,
+            password: senha,
+        })
+            .then((response) => {
+                const { token } = response.data;
+
+                salvar(token);
+                console.log(token);
+
+                navigation.navigate('Cardapio', { token });
+            })
+            .catch((error) => {
+                console.log(error);
+
+                alert("erro ao fazer login");
+            })
+    }
+    
+    return (
+        <KeyboardAvoidingView
+            behavior= 'padding'
+            enabled={Platform.OS === 'ios'}
+        >
+            <ImageBackground
+                source={require( '../assets/background_login.jpeg' )}
+                style={styles.imageBackground}>
+                <View style={styles.pinkBox}>
+                    <Text style={styles.inText}>
+                        Login
+                    </Text>
+                    
+                    <TextInput
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        placeholder="Matricula"
+                        style={styles.input}
+                        value={matricula}
+                        onChangeText={setMatricula}
+                    />
+
+                    <TextInput
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        placeholder="Senha"
+                        style={styles.input}
+                        value={senha}
+                        onChangeText={setSenha}
+                        secureTextEntry={true}
+                    />
+                    
+                    <TouchableOpacity onPress={handlelogin} style={styles.button}>
+                        <Text style={styles.buttonText}>
                             Login
                         </Text>
-                        
-                        <TextInput
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            placeholder="Matricula"
-                            style={styles.input}
-                        />
-
-                        <TextInput
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            placeholder="Senha"
-                            style={styles.input}
-                        />
-                        
-                        <TouchableOpacity style={styles.button}>
-                            <Text style={styles.buttonText}>
-                                Login
-                            </Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity style={{marginTop: 5}}>
-                            <Text style={styles.linkCadastro}>
-                                Não registrado ainda? Crie uma conta
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </ImageBackground>
-            </KeyboardAvoidingView>
-        );
-    };
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={{marginTop: 5}}>
+                        <Text style={styles.linkCadastro}>
+                            Não registrado ainda? Crie uma conta
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </ImageBackground>
+        </KeyboardAvoidingView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -96,7 +131,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     button: {
-        width: 220,
+        width: 240,
         height: 46,
         borderRadius: 5,
         marginTop: 20,

@@ -1,14 +1,11 @@
-import { createStackNavigator } from 'react-navigation';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 
 import Login from './pages/Login';
+import Cardapio from './pages/Cardapio';
 
-export default createStackNavigator({
-    Login,
-}, {
-    navigationOptions: {
-        headerStyle: {
-            backgroundColor: "#F08080",
-        },
-        headerTintColor: "#FFF",
-    }
-});
+export default createAppContainer(
+    createSwitchNavigator({
+        Login,
+        Cardapio,
+    })
+);
