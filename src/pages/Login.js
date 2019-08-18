@@ -5,7 +5,10 @@ import {
     Text,
     ImageBackground,
     StyleSheet,
-    TextInput
+    TextInput,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform
 } from 'react-native';
 
 export default class Main extends Component {
@@ -15,44 +18,99 @@ export default class Main extends Component {
 
     render() {
         return (
-            <ImageBackground
-                source={require( '../assets/background_login.jpeg' )}
-                style={styles.imageBackground}>
-                <View style={styles.pinkBox}>
-                    <Text style={styles.inText}>
-                        Login
-                    </Text>
-                    <TextInput placeholder="Matricula" style={styles.input} />
-                    <TextInput placeholder="Senha" style={styles.input} />
-                </View>
-            </ImageBackground>
+            <KeyboardAvoidingView
+                behavior= 'padding'
+                enabled={Platform.OS === 'ios'}
+            >
+                <ImageBackground
+                    source={require( '../assets/background_login.jpeg' )}
+                    style={styles.imageBackground}>
+                    <View style={styles.pinkBox}>
+                        <Text style={styles.inText}>
+                            Login
+                        </Text>
+                        
+                        <TextInput
+                            autoCapitalize='none'
+                            autoCorrect={false}
+                            placeholder="Matricula"
+                            style={styles.input}
+                        />
+
+                        <TextInput
+                            autoCapitalize='none'
+                            autoCorrect={false}
+                            placeholder="Senha"
+                            style={styles.input}
+                        />
+                        
+                        <TouchableOpacity style={styles.button}>
+                            <Text style={styles.buttonText}>
+                                Login
+                            </Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity style={{marginTop: 5}}>
+                            <Text style={styles.linkCadastro}>
+                                Não registrado ainda? Crie uma conta
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </ImageBackground>
+            </KeyboardAvoidingView>
         );
     };
 }
 
 const styles = StyleSheet.create({
     imageBackground: {
-        width: "100%",
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     pinkBox: {
         width: 290,
         height: 270,
-        backgroundColor: "#F08080",
-        alignItems: "center",
+        backgroundColor: '#F08080',
+        alignItems: 'center',
         borderRadius: 5,
     },
     inText: {
         marginTop: 10,
         fontSize: 20,
-        color: "#FFF",
+        color: '#FFF',
     },
     input: {
-        backgroundColor: "#fff",
+        backgroundColor: '#FFF',
         width: 240,
-        margin: 15,
+        marginTop: 20,
         borderRadius: 5,
+        height: 46,
+        borderWidth: 1,
+        borderColor: '#DDD',
+        paddingHorizontal: 15,
+    },
+    boxBotoes: {
+        flexDirection: "row",
+        width: '100%',
+    },
+    button: {
+        width: 220,
+        height: 46,
+        borderRadius: 5,
+        marginTop: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFF',
+        margin: 2.5,
+    },
+    buttonText: {
+        color: '#2a2a2a',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    linkCadastro: {
+        fontSize: 13,
     }
 })
