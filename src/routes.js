@@ -1,9 +1,9 @@
 import { createStackNavigator } from 'react-navigation';
 
-import Main from './pages/Login';
+import Login from './pages/Login';
 
 export default createStackNavigator({
-    Main,
+    Login,
 }, {
     navigationOptions: {
         headerStyle: {
