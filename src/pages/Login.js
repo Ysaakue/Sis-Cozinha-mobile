@@ -37,7 +37,6 @@ export default function Login({ navigation }){
                 const { token } = response.data;
 
                 salvar(token);
-                console.log(token);
 
                 navigation.navigate('Cardapio', { token });
             })
