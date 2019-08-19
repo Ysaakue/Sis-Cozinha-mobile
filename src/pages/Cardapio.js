@@ -6,7 +6,7 @@ export default function Cardapio({ navigation }) {
     const token = navigation.getParam('token');
     var isLoading = true;
     var cardapio;
-    
+
     useEffect(() => {
         api.get('/menuWeek/date/14-01-2019', {
             headers: { Authorization: "bearer " + token }
@@ -14,6 +14,7 @@ export default function Cardapio({ navigation }) {
         .then(response => {
             cardapio = response.data.data;
             isLoading = false;
+            const requisitadas
 
             console.log(response.data.data);
             console.log(cardapio);
