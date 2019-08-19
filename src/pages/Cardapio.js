@@ -1,100 +1,71 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import { SafeAreaView, ScrollView,  View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, ActivityIndicator,  View, Text, StyleSheet } from 'react-native';
 
 export default function Cardapio({ navigation }) {
-    const token = navigation.getParam('token')
-    const [ cardapio, setCardapio ] = useState({});
-
+    const token = navigation.getParam('token');
+    var isLoading = true;
+    var cardapio;
+    
     useEffect(() => {
-        async function loadCardapio() {
-            const response = await api.get('/menuWeek/date/14-01-2019', {
-                headers: { Authorization: "bearer " + token }
-              });
+        api.get('/menuWeek/date/14-01-2019', {
+            headers: { Authorization: "bearer " + token }
+        })
+        .then(response => {
+            cardapio = response.data.data;
+            isLoading = false;
 
-            setCardapio(response.data.data);
-            const cardapio = response.data.data;
             console.log(response.data.data);
-        }
-
-        loadCardapio();
+            console.log(cardapio);
+            console.log(isLoading);
+        })
+        .catch(error => {
+            console.warn(error);
+            isLoading = false;
+        })
     }, []);
 
     return (
-        <SafeAreaView >
-            <ScrollView>
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>
-                        Cardápio Semanal
-                    </Text>
-                </View>
+        <SafeAreaView>
+            <View style={styles.header}>
+                <Text style={styles.headerText}>
+                    Cardápio Semanal
+                </Text>
+            </View>
 
-                <View style={styles.daysContainer}>
-                    <View style={styles.duplo}>
-                        { 
-                            cardapio.monday ? (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Tem merenda</Text>
-                                </View>
-                            ) : (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Sem merenda</Text>
-                                </View>
-                            )
-                        }
-
-                        { 
-                            cardapio.tuesday ? (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Tem merenda</Text>
-                                </View>
-                            ) : (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Sem merenda</Text>
-                                </View>
-                            )
-                        }
-                    </View>
-
-                    <View style={styles.duplo}>
-                        { 
-                            cardapio.wednesday ? (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Tem merenda</Text>
-                                </View>
-                            ) : (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Sem merenda</Text>
-                                </View>
-                            )
-                        }
-
-                        { 
-                            cardapio.thursday ? (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Tem merenda</Text>
-                                </View>
-                            ) : (
-                                <View style={styles.daycard}>
-                                    <Text style={{color: "#FFF"}}>Sem merenda</Text>
-                                </View>
-                            )
-                        }
-                    </View>
-
-                    { 
-                        cardapio.friday ? (
-                            <View style={styles.sexta}>
+            { cardapio ? (
+                    <View style={styles.daysContainer}>
+                        <View style={styles.duplo}>
+                            <View style={styles.daycard}>
                                 <Text style={{color: "#FFF"}}>Tem merenda</Text>
                             </View>
-                        ) : (
-                            <View style={styles.sexta}>
-                                <Text style={{color: "#FFF"}}>Sem merenda</Text>
+
+                            <View style={styles.daycard}>
+                                <Text style={{color: "#FFF"}}>Tem merenda</Text>
                             </View>
-                        )
-                    }
-                </View>
-            </ScrollView>
+                        </View>
+
+                        <View style={styles.duplo}>
+                            <View style={styles.daycard}>
+                                <Text style={{color: "#FFF"}}>Tem merenda</Text>
+                            </View>
+
+                            <View style={styles.daycard}>
+                                <Text style={{color: "#FFF"}}>Tem merenda</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.sexta}>
+                            <Text style={{color: "#FFF"}}>Tem merenda</Text>
+                        </View>
+                    </View>
+                ) : (
+                    <ActivityIndicator
+                        color='#99d9eb'
+                        size='large'
+                    />
+                )
+            }
         </SafeAreaView>
     );
 }
