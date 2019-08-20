@@ -1,7 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Overlay } from 'react-native-elements';
-import api from '../services/api';
 import {
   View,
   Text,
@@ -12,11 +10,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import api from '../services/api';
 
-export default function Login({navigation}) {
+export default function Cadastro({navigation}) {
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
   const [matricula, setMatricula] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
-  const showAlert = false;
+  const [senhaConfirm, setSenhaConfirm] = useState('');
 
   useEffect(() => {
     AsyncStorage.getItem('token').then(token => {
@@ -30,38 +32,56 @@ export default function Login({navigation}) {
     await AsyncStorage.setItem('token', valor);
   }
 
-  async function handlelogin() {
-    if (matricula.length >=14)  {
-      await api
-        .post('/authUser/login', {
-          enrollment: matricula,
-          password: senha,
-        })
-        .then(response => {
-          const {token} = response.data;
+  async function handleCadastro() {
+    await api
+      .post('/authUser/', {
+        name: nome,
+        email: email,
+        phone: telefone,
+        enrollment: matricula,
+        password: senha,
+      })
+      .then(response => {
+        const {token} = response.data;
+        salvar(token);
+        navigation.navigate('Cardapio', {token});
+      })
+      .catch(error => {
+        console.log(error);
+        alert('erro ao fazer login');
+      });
+  }
 
-          salvar(token);
-          navigation.navigate('Cardapio', {token});
-        })
-        .catch(error => {
-          console.log(error);
-          alert('Erro ao fazer login');
-        });
-    } else {
-      showAlert = true;
-      // alert('Informe uma matrícula válida');
-    }
-  }
-  function Cadastro() {
-    navigation.navigate('Cadastro');
-  }
   return (
     <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
       <ImageBackground
         source={require('../assets/background_login.jpeg')}
         style={styles.imageBackground}>
         <View style={styles.pinkBox}>
-          <Text style={styles.inText}>SisCozinha</Text>
+          <Text style={styles.inText}>
+            {'<'}
+          </Text>
+          <Text style={styles.inText}>
+            Criar conta
+          </Text>
+
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Nome"
+            style={styles.input}
+            value={nome}
+            onChangeText={setNome}
+          />
+          
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Email"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+          />
 
           <TextInput
             autoCapitalize="none"
@@ -75,31 +95,34 @@ export default function Login({navigation}) {
           <TextInput
             autoCapitalize="none"
             autoCorrect={false}
+            placeholder="Telefone"
+            style={styles.input}
+            value={telefone}
+            onChangeText={setTelefone}
+          />
+
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
             placeholder="Senha"
             style={styles.input}
             value={senha}
             onChangeText={setSenha}
+          />
+
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Confirme a senha"
+            style={styles.input}
+            value={senhaConfirm}
+            onChangeText={setSenhaConfirm}
             secureTextEntry={true}
           />
 
-          <TouchableOpacity onPress={handlelogin} style={styles.button}>
-            <Text style={styles.buttonText}>Login</Text>
+          <TouchableOpacity onPress={handleCadastro} style={styles.button}>
+            <Text style={styles.buttonText}>Cadastrar</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity onPress={Cadastro} style={{marginTop: 15}}>
-            <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
-            <Text style={styles.linkCadastro}>Crie uma conta!</Text>
-          </TouchableOpacity>
-
-          <Overlay
-            isVisible={this.state.showAlert}
-            windowBackgroundColor="rgba(255, 255, 255, .5)"
-            overlayBackgroundColor="red"
-            width="auto"
-            height="auto"
-          >
-            <Text>Hello from Overlay!</Text>
-          </Overlay>;
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -115,7 +138,7 @@ const styles = StyleSheet.create({
   },
   pinkBox: {
     width: 290,
-    height: 320,
+    height: '75%',
     backgroundColor: '#F08080',
     alignItems: 'center',
     borderRadius: 8,

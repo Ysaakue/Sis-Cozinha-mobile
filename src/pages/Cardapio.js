@@ -6,6 +6,15 @@ export default function Cardapio({ navigation }) {
     const token = navigation.getParam('token');
     var isLoading = true;
     var cardapio;
+    
+    function dadosMeal(){
+        api.get(`/meal/${cardapio.monday.morning.meal}`, {
+            headers: { Authorization: "bearer " + token }
+        })
+        .then(response => {
+            console.log(response);
+        })
+    }
 
     useEffect(() => {
         api.get('/menuWeek/date/14-01-2019', {
@@ -14,11 +23,12 @@ export default function Cardapio({ navigation }) {
         .then(response => {
             cardapio = response.data.data;
             isLoading = false;
-            const requisitadas
 
             console.log(response.data.data);
             console.log(cardapio);
             console.log(isLoading);
+
+            dadosMeal();
         })
         .catch(error => {
             console.warn(error);
