@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Overlay } from 'react-native-elements';
 import api from '../services/api';
 import {
   View,
@@ -11,12 +10,12 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 
 export default function Login({navigation}) {
   const [matricula, setMatricula] = useState('');
   const [senha, setSenha] = useState('');
-  const showAlert = false;
 
   useEffect(() => {
     AsyncStorage.getItem('token').then(token => {
@@ -30,8 +29,8 @@ export default function Login({navigation}) {
     await AsyncStorage.setItem('token', valor);
   }
 
-  async function handlelogin() {
-    if (matricula.length >=14)  {
+  async function handleLogin() {
+    if (matricula.length >= 14) {
       await api
         .post('/authUser/login', {
           enrollment: matricula,
@@ -39,20 +38,17 @@ export default function Login({navigation}) {
         })
         .then(response => {
           const {token} = response.data;
-
           salvar(token);
           navigation.navigate('Cardapio', {token});
         })
-        .catch(error => {
-          console.log(error);
-          alert('Erro ao fazer login');
+        .catch(() => {
+          Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
         });
     } else {
-      showAlert = true;
-      // alert('Informe uma matrícula válida');
+      Alert.alert('Matricula inválida', 'Informe uma matricula válida!');
     }
   }
-  function Cadastro() {
+  function handleCadastro() {
     navigation.navigate('Cadastro');
   }
   return (
@@ -61,7 +57,7 @@ export default function Login({navigation}) {
         source={require('../assets/background_login.jpeg')}
         style={styles.imageBackground}>
         <View style={styles.pinkBox}>
-          <Text style={styles.inText}>SisCozinha</Text>
+          <Text style={styles.inText}>Login</Text>
 
           <TextInput
             autoCapitalize="none"
@@ -82,24 +78,14 @@ export default function Login({navigation}) {
             secureTextEntry={true}
           />
 
-          <TouchableOpacity onPress={handlelogin} style={styles.button}>
+          <TouchableOpacity onPress={handleLogin} style={styles.button}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity onPress={Cadastro} style={{marginTop: 15}}>
+
+          <TouchableOpacity onPress={handleCadastro} style={{marginTop: 15}}>
             <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
             <Text style={styles.linkCadastro}>Crie uma conta!</Text>
           </TouchableOpacity>
-
-          <Overlay
-            isVisible={this.state.showAlert}
-            windowBackgroundColor="rgba(255, 255, 255, .5)"
-            overlayBackgroundColor="red"
-            width="auto"
-            height="auto"
-          >
-            <Text>Hello from Overlay!</Text>
-          </Overlay>;
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -130,7 +116,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     width: 240,
     marginTop: 20,
-    borderRadius: 5,
+    borderRadius: 8,
     height: 40,
     borderWidth: 1,
     borderColor: '#DDD',
@@ -142,9 +128,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
+    flexDirection: 'row',
     width: 120,
     height: 40,
-    borderRadius: 5,
+    borderRadius: 8,
     marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center',
