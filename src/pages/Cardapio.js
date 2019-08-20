@@ -219,8 +219,6 @@ export default function Cardapio({ navigation }) {
                             </View>
                         </ImageBackground>
                     </View>
-
-                    
                 </View>
             </View>
         </SafeAreaView>
