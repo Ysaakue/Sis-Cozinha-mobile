@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, Component} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import api from '../services/api';
 import {
@@ -13,83 +13,93 @@ import {
   Alert,
 } from 'react-native';
 
-export default function Login({navigation}) {
-  const [matricula, setMatricula] = useState('');
-  const [senha, setSenha] = useState('');
+export default class Login extends Component {
+  state = {
+    matricula: '',
+    senha: '',
+  }
 
-  useEffect(() => {
+  componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        navigation.navigate('Cardapio', {token});
+        // this.props.navigation.navigate('Cardapio', {token});
       }
     });
-  }, [navigation]);
+  }
 
-  async function salvar(valor) {
+  salvar = async (valor) => {
     await AsyncStorage.setItem('token', valor);
   }
 
-  async function handleLogin() {
-    if (matricula.length >= 14) {
+  handleLogin = async () => {
+    if (this.state.matricula.length >= 14) {
+      console.log(this.state.matricula, this.state.senha);
       await api
         .post('/authUser/login', {
-          enrollment: matricula,
-          password: senha,
+          enrollment: this.state.matricula,
+          password: this.state.senha,
         })
         .then(response => {
           const {token} = response.data;
-          salvar(token);
-          navigation.navigate('Cardapio', {token});
+          this.salvar(token);
+          this.props.navigation.navigate('Cardapio', {token});
         })
-        .catch(() => {
+        .catch((error) => {
+          console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
         });
     } else {
       Alert.alert('Matricula inválida', 'Informe uma matricula válida!');
     }
   }
-  function handleCadastro() {
-    navigation.navigate('Cadastro');
+
+  render() {
+    return(
+      <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
+        <ImageBackground
+          source={require('../assets/background_login.jpeg')}
+          style={styles.imageBackground}>
+          <View style={styles.pinkBox}>
+            <Text style={styles.inText}>Login</Text>
+
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholder="Matricula"
+              style={styles.input}
+              name="matricula"
+              onChangeText={(text) => this.setState({matricula: text})}
+              value={this.state.matricula}
+            />
+
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholder="Senha"
+              style={styles.input}
+              value={this.state.senha}
+              onChangeText={(text) => this.setState({senha: text})}
+              secureTextEntry={true}
+            />
+
+            <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={() => {
+                this.props.navigation.navigate('Cadastro');
+              }}
+              style={{marginTop: 15}}
+            >
+              <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
+              <Text style={styles.linkCadastro}>Crie uma conta!</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+      </KeyboardAvoidingView>
+    )
   }
-  return (
-    <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
-      <ImageBackground
-        source={require('../assets/background_login.jpeg')}
-        style={styles.imageBackground}>
-        <View style={styles.pinkBox}>
-          <Text style={styles.inText}>Login</Text>
-
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholder="Matricula"
-            style={styles.input}
-            value={matricula}
-            onChangeText={setMatricula}
-          />
-
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholder="Senha"
-            style={styles.input}
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry={true}
-          />
-
-          <TouchableOpacity onPress={handleLogin} style={styles.button}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleCadastro} style={{marginTop: 15}}>
-            <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
-            <Text style={styles.linkCadastro}>Crie uma conta!</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
-    </KeyboardAvoidingView>
-  );
 }
 
 const styles = StyleSheet.create({
