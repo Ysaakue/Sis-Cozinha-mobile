@@ -1,4 +1,4 @@
-import React, {useState, useEffect, Component} from 'react';
+import React, { Component } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import api from '../services/api';
 import {
@@ -22,7 +22,7 @@ export default class Login extends Component {
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        // this.props.navigation.navigate('Cardapio', {token});
+        this.props.navigation.navigate('Cardapio', {token});
       }
     });
   }
@@ -33,7 +33,6 @@ export default class Login extends Component {
 
   handleLogin = async () => {
     if (this.state.matricula.length >= 14) {
-      console.log(this.state.matricula, this.state.senha);
       await api
         .post('/authUser/login', {
           enrollment: this.state.matricula,
@@ -111,7 +110,7 @@ const styles = StyleSheet.create({
   },
   pinkBox: {
     width: 290,
-    height: 320,
+    height: 300,
     backgroundColor: '#F08080',
     alignItems: 'center',
     borderRadius: 8,

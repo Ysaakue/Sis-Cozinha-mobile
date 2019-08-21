@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, Component} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import {Icon} from 'react-native-elements';
 import {
@@ -15,133 +15,151 @@ import {
 } from 'react-native';
 import api from '../services/api';
 
-export default function Cadastro({navigation}) {
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [matricula, setMatricula] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [senha, setSenha] = useState('');
-  const [senhaConfirm, setSenhaConfirm] = useState('');
+export default class Cadastro extends Component {
+  state = {
+    nome: '',
+    email: '',
+    matricula: '',
+    telefone: '',
+    senha: '',
+    senhaConfirm: '',
+  }
 
-  useEffect(() => {
+  componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        navigation.navigate('Cardapio', {token});
+        this.props.navigation.navigate('Cardapio', {token});
       }
     });
-  }, [navigation]);
+  }
 
-  async function salvar(valor) {
+  salvar = async (valor) => {
     await AsyncStorage.setItem('token', valor);
   }
-  async function autoLogin() {
+
+  handleLogin = () => {
+    this.props.navigation.navigate('Login');
+  }
+
+  autoLogin = async () => {
     await api
       .post('/authUser/login', {
-        enrollment: matricula,
-        password: senha,
+        enrollment: this.state.matricula,
+        password: this.state.senha,
       })
       .then(response => {
         const {token} = response.data;
-        salvar(token);
-        navigation.navigate('Cardapio', {token});
+        this.salvar(token);
+        this.props.navigation.navigate('Cardapio', {token});
       })
       .catch(() => {
         Alert.alert('Erro ao fazer login');
       });
   }
-  async function handleCadastro() {
+
+  handleCadastro = async () => {
     await api
       .post('/authUser/', {
-        name: nome,
-        email: email,
-        phone: telefone,
-        enrollment: matricula,
-        password: senha,
+        name: this.state.nome,
+        email: this.state.email,
+        phone: this.state.telefone,
+        enrollment: this.state.matricula,
+        password: this.state.senha,
       })
-      .then(response => {
-        console.log(response);
+      .then(() => {
         autoLogin();
       })
       .catch(() => {
         Alert.alert('Erro ao criar conta');
       });
   }
-  function handleLogin() {
-    navigation.navigate('Login');
+
+  render() {
+    return (
+      <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
+        <ImageBackground
+          source={require('../assets/background_login.jpeg')}
+          style={styles.imageBackground}>
+          <ScrollView
+            contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
+            <View style={styles.pinkBox}>
+              <Text style={styles.inText}>Criar conta</Text>
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Nome"
+                style={styles.input}
+                value={this.state.nome}
+                onChangeText={(text) => this.setState({nome: text})}
+              />
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Email"
+                style={styles.input}
+                value={this.state.email}
+                onChangeText={(text) => this.setState({email: text})}
+              />
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Matricula"
+                style={styles.input}
+                value={this.state.matricula}
+                onChangeText={(text) => this.setState({matricula: text})}
+              />
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Telefone"
+                style={styles.input}
+                value={this.state.telefone}
+                onChangeText={(text) => this.setState({telefone: text})}
+              />
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Senha"
+                style={styles.input}
+                secureTextEntry={true}
+                value={this.state.senha}
+                onChangeText={(text) => this.setState({senha: text})}
+              />
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Confirme a senha"
+                style={styles.input}
+                secureTextEntry={true}
+                value={this.state.senhaConfirm}
+                onChangeText={(text) => this.setState({senhaConfirm: text})}
+              />
+
+              <TouchableOpacity onPress={this.handleCadastro} style={styles.button}>
+                <Text style={styles.buttonText}>Cadastrar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                onPress={() => {
+                  this.props.navigation.navigate('Login');
+                }}
+                style={{marginTop: 10}}
+              >
+                <Text style={styles.linkLogin}>Já é registrado?</Text>
+                <Text style={styles.linkLogin}>Fazer Login!</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </ImageBackground>
+      </KeyboardAvoidingView>
+    )
   }
-  return (
-    <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
-      <ImageBackground
-        source={require('../assets/background_login.jpeg')}
-        style={styles.imageBackground}>
-        <ScrollView
-          contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
-          <View style={styles.pinkBox}>
-            <Text style={styles.inText}>Criar conta</Text>
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Nome"
-              style={styles.input}
-              value={nome}
-              onChangeText={setNome}
-            />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Email"
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-            />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Matricula"
-              style={styles.input}
-              value={matricula}
-              onChangeText={setMatricula}
-            />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Telefone"
-              style={styles.input}
-              value={telefone}
-              onChangeText={setTelefone}
-            />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Senha"
-              style={styles.input}
-              value={senha}
-              onChangeText={setSenha}
-            />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="Confirme a senha"
-              style={styles.input}
-              value={senhaConfirm}
-              onChangeText={setSenhaConfirm}
-              secureTextEntry={true}
-            />
-
-            <TouchableOpacity onPress={handleCadastro} style={styles.button}>
-              <Text style={styles.buttonText}>Cadastrar</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </ImageBackground>
-    </KeyboardAvoidingView>
-  );
 }
 
 const styles = StyleSheet.create({
@@ -153,7 +171,7 @@ const styles = StyleSheet.create({
   },
   pinkBox: {
     width: 290,
-    height: 500,
+    height: 535,
     backgroundColor: '#F08080',
     alignItems: 'center',
     justifyContent: 'center',
@@ -198,6 +216,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   linkCadastro: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#ffffff',
+  },
+  linkLogin: {
     textAlign: 'center',
     fontSize: 14,
     color: '#ffffff',
