@@ -58,8 +58,8 @@ export default class Cadastro extends Component {
   };
 
   handleCadastro = async () => {
-    let inputsOk = false;
     var erro = '';
+    var validations = [];
     if (
       this.state.nome.length > 0 &&
       this.state.email.length > 0 &&
@@ -69,27 +69,35 @@ export default class Cadastro extends Component {
       this.state.senhaConfirm.length > 0
     ) {
       if (this.state.email.match(/(@)/)) {
-        inputsOk = true;
+        validations.push('ok');
       } else {
         erro = 'Informe um e-mail válido!';
       }
-      if (this.state.matricula.length < 14) {
+      if (this.state.matricula.length == 14) {
+        validations.push('ok');
+      } else {
         erro = 'Informe uma matricula válida!';
       }
-      if (this.state.telefone.length < 8) {
+      if (this.state.telefone.length > 8) {
+        validations.push('ok');
+      } else {
         erro = 'Informe um telefone válido!';
       }
-      if (this.state.senha.length < 7) {
+      if (this.state.senha.length > 7) {
+        validations.push('ok');
+      } else {
         erro = 'Informe uma senha com mais de 8 caracteres!';
       }
       if (this.state.senha != this.state.senhaConfirm) {
+        validations.push('ok');
+      } else {
         erro = 'As senhas não conferem!';
       }
     } else {
       erro = 'Preencha todos os campos!';
     }
 
-    if (inputsOk) {
+    if (validations.length == 5) {
       await api
         .post('/authUser/', {
           name: this.state.nome,

@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+import {Input} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import api from '../services/api';
 import {
@@ -6,7 +7,6 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -17,7 +17,7 @@ export default class Login extends Component {
   state = {
     matricula: '',
     senha: '',
-  }
+  };
 
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
@@ -27,12 +27,30 @@ export default class Login extends Component {
     });
   }
 
-  salvar = async (valor) => {
+  salvar = async valor => {
     await AsyncStorage.setItem('token', valor);
-  }
+  };
 
   handleLogin = async () => {
-    if (this.state.matricula.length >= 14) {
+    var erro = '';
+    var validations = [];
+
+    if (this.state.matricula.length > 0 && this.state.senha.length) {
+      if (this.state.senha.length > 7) {
+        validations.push('ok');
+      } else {
+        erro = 'Informe uma senha com mais de 8 caracteres!';
+      }
+      if (this.state.matricula.length == 14) {
+        validations.push('ok');
+      } else {
+        erro = 'A matricula deve conter 14 caracteres!';
+      }
+    } else {
+      erro = 'Preencha todos os campos!';
+    }
+
+    if (validations.length == 2) {
       await api
         .post('/authUser/login', {
           enrollment: this.state.matricula,
@@ -43,17 +61,17 @@ export default class Login extends Component {
           this.salvar(token);
           this.props.navigation.navigate('Cardapio', {token});
         })
-        .catch((error) => {
+        .catch(error => {
           console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
         });
     } else {
-      Alert.alert('Matricula inválida', 'Informe uma matricula válida!');
+      Alert.alert('Erro ao fazer login', erro);
     }
-  }
+  };
 
   render() {
-    return(
+    return (
       <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
         <ImageBackground
           source={require('../assets/background_login.jpeg')}
@@ -61,43 +79,41 @@ export default class Login extends Component {
           <View style={styles.pinkBox}>
             <Text style={styles.inText}>Login</Text>
 
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
+            <Input
               placeholder="Matricula"
-              style={styles.input}
-              name="matricula"
-              onChangeText={(text) => this.setState({matricula: text})}
+              containerStyle={styles.inputContainer}
+              inputContainerStyle={styles.input}
+              inputStyle={styles.inputText}
               value={this.state.matricula}
+              onChangeText={text => this.setState({matricula: text})}
             />
-
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
+            <Input
               placeholder="Senha"
-              style={styles.input}
-              value={this.state.senha}
-              onChangeText={(text) => this.setState({senha: text})}
+              autoCapitalize="none"
               secureTextEntry={true}
+              containerStyle={styles.inputContainer}
+              inputContainerStyle={styles.input}
+              inputStyle={styles.inputText}
+              value={this.state.senha}
+              onChangeText={text => this.setState({senha: text})}
             />
 
             <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => {
                 this.props.navigation.navigate('Cadastro');
               }}
-              style={{marginTop: 15}}
-            >
+              style={{marginTop: 15}}>
               <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
               <Text style={styles.linkCadastro}>Crie uma conta!</Text>
             </TouchableOpacity>
           </View>
         </ImageBackground>
       </KeyboardAvoidingView>
-    )
+    );
   }
 }
 
@@ -121,15 +137,17 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: '#FFF',
   },
+  inputContainer: {
+    width: 240,
+    marginBottom: 10,
+  },
   input: {
     backgroundColor: '#FFF',
-    width: 240,
-    marginTop: 20,
-    borderRadius: 8,
-    height: 40,
     borderWidth: 1,
     borderColor: '#DDD',
-    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  inputText: {
     color: '#121212',
   },
   boxBotoes: {
