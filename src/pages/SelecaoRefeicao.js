@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import{
   Text,
+  Image,
   View,
   SafeAreaView,
   StyleSheet,
@@ -12,31 +13,59 @@ export default class SelecaoRefeicao extends Component {
   state = {
     token: this.props.navigation.getParam('token'),
     dia: this.props.navigation.getParam('dia'),
-    morning: Object,
-    afternoon: this.props.navigation.getParam('afternoon'),
-    night: this.props.navigation.getParam('night'),
+    morning: {
+      meal: {
+        imageUrl: '',
+      }
+    },
+    afternoon: {
+      meal: {
+        imageUrl: '',
+      }
+    },
+    night: {
+      meal: {
+        imageUrl: '',
+      }
+    },
     ready: false,
     imagens: [],
     ready: false,
   }
 
   requisicao = async () => {
-    await api.get(`/menuWeek/meal/5be9d59892adc200040568f1`, {
+    await api.get(`/menuWeek/meal/${this.props.navigation.getParam('morning').meal}`, {
         headers: { Authorization: "bearer " + this.state.token }
       })
       .then(response => {
-        console.log(response);
         this.setState({morning: response.data.data});
-        console.log("terminou: " + this.state.morning);
       })
       .catch(error => {console.warn(error)})
+
+    await api.get(`/menuWeek/meal/${this.props.navigation.getParam('afternoon').meal}`, {
+        headers: { Authorization: "bearer " + this.state.token }
+      })
+      .then(response => {
+        this.setState({afternoon: response.data.data});
+      })
+      .catch(error => {console.warn(error)})
+
+    await api.get(`/menuWeek/meal/${this.props.navigation.getParam('night').meal}`, {
+        headers: { Authorization: "bearer " + this.state.token }
+      })
+      .then(response => {
+        this.setState({night: response.data.data});
+      })
+      .catch(error => {console.warn(error)})
+    
+    console.log(this.state.morning);
+    console.log(this.state.afternoon);
+    console.log(this.state.night);
+    this.setState({ ready: true});
   }
 
   componentDidMount(){
-    console.log( this.props.navigation.getParam('afternoon'), this.props.navigation.getParam('night'));
     this.requisicao();
-
-    this.setState({ ready: true});
   }
 
   static navigationOptions = {
@@ -47,7 +76,46 @@ export default class SelecaoRefeicao extends Component {
     return (
       <SafeAreaView>
         {this.state.ready ? (
-          <View></View>
+          <View>
+            { this.state.morning != null ? (
+              <Image 
+                style={{width:100,height:100}}
+                source={{uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${this.state.morning.imageUrl}`}}
+              />
+            ) : (
+              <View>
+                <Text>
+                  Manha Vazio
+                </Text>
+              </View>
+            )}
+
+            { this.state.afternoon != null ?  (
+              <Image 
+                style={{width:100,height:100}}
+                source={{uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${this.state.afternoon.imageUrl}`}}
+              />
+            ) : (
+              <View>
+                <Text>
+                  Tarde Vazio
+                </Text>
+              </View>
+            )}
+
+            { this.state.night != null ? (
+              <Image 
+                style={{width:100,height:100}}
+                source={{uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${this.state.night.imageUrl}`}}
+              />
+            ) : (
+              <View>
+                <Text>
+                  Noite Vazio
+                </Text>
+              </View>
+            )}
+          </View>
         ) : (
           <View style={styles.activityIndicatorContainer}>
             <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>

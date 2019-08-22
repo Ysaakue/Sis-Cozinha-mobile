@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { ListItem, Icon } from 'react-native-elements'
+import { ListItem, Icon, Button } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 import api from '../services/api';
 import {
   SafeAreaView,
@@ -44,8 +45,13 @@ export default class SelecaoDias extends Component {
     ready: false,
   }
 
+  handleLogout = async () => {
+    await AsyncStorage.removeItem('token');
+    this.props.navigation.navigate('Login');
+  };
+
   static navigationOptions = {
-    title: 'Cardápio Semanal'
+    title: 'Cardápio Semanal',
   }
 
   componentDidMount() {
@@ -79,6 +85,8 @@ export default class SelecaoDias extends Component {
 
     this.props.navigation.navigate('SelecaoRefeicao', { dia, morning, afternoon, night, token: this.state.token });
   }
+
+  
   
   renderItem = ({ item }) => (
     <ListItem
@@ -112,6 +120,14 @@ export default class SelecaoDias extends Component {
             </View>
           )
         }
+
+        
+        <Button
+          title="Sair"
+          containerStyle={styles.logoutBtnContainer}
+          buttonStyle={styles.logoutBtn}
+          onPress={this.handleLogout}
+        />
       </SafeAreaView>
     );
   }
@@ -138,5 +154,10 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     paddingBottom: 40,
-  }
+  },
+  logoutBtn: {
+    marginTop: 30,
+    width: '100%',
+    backgroundColor: 'firebrick',
+  },
 });
