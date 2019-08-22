@@ -77,7 +77,7 @@ export default class SelecaoDias extends Component {
     const afternoon = temp.afternoon;
     const night = temp.night;
 
-    this.props.navigation.navigate('SelecaoRefeicao', { dia, morning, afternoon, night });
+    this.props.navigation.navigate('SelecaoRefeicao', { dia, morning, afternoon, night, token: this.state.token });
   }
   
   renderItem = ({ item }) => (

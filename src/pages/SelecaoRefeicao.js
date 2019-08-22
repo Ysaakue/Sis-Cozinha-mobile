@@ -12,7 +12,7 @@ export default class SelecaoRefeicao extends Component {
   state = {
     token: this.props.navigation.getParam('token'),
     dia: this.props.navigation.getParam('dia'),
-    morning: {},
+    morning: Object,
     afternoon: this.props.navigation.getParam('afternoon'),
     night: this.props.navigation.getParam('night'),
     ready: false,
@@ -20,11 +20,22 @@ export default class SelecaoRefeicao extends Component {
     ready: false,
   }
 
+  requisicao = async () => {
+    await api.get(`/menuWeek/meal/5be9d59892adc200040568f1`, {
+        headers: { Authorization: "bearer " + this.state.token }
+      })
+      .then(response => {
+        console.log(response);
+        this.setState({morning: response.data.data});
+        console.log("terminou: " + this.state.morning);
+      })
+      .catch(error => {console.warn(error)})
+  }
+
   componentDidMount(){
     console.log( this.props.navigation.getParam('afternoon'), this.props.navigation.getParam('night'));
-    await api
-      .get(`/menuWeek/meal/${this.props.navigation.getParam('morning').meal}`)
-    
+    this.requisicao();
+
     this.setState({ ready: true});
   }
 
