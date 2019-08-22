@@ -1,13 +1,12 @@
-import React, {useState, useEffect, Component} from 'react';
+import React, {Component} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {Icon} from 'react-native-elements';
+import {Input} from 'react-native-elements';
 import {
   ScrollView,
   View,
   Text,
   ImageBackground,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +22,8 @@ export default class Cadastro extends Component {
     telefone: '',
     senha: '',
     senhaConfirm: '',
-  }
+    isLoading: false,
+  };
 
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
@@ -33,13 +33,13 @@ export default class Cadastro extends Component {
     });
   }
 
-  salvar = async (valor) => {
-    await AsyncStorage.setItem('token', valor);
-  }
+  salvar = async token => {
+    await AsyncStorage.setItem('token', token);
+  };
 
   handleLogin = () => {
     this.props.navigation.navigate('Login');
-  }
+  };
 
   autoLogin = async () => {
     await api
@@ -55,24 +55,59 @@ export default class Cadastro extends Component {
       .catch(() => {
         Alert.alert('Erro ao fazer login');
       });
-  }
+  };
 
   handleCadastro = async () => {
-    await api
-      .post('/authUser/', {
-        name: this.state.nome,
-        email: this.state.email,
-        phone: this.state.telefone,
-        enrollment: this.state.matricula,
-        password: this.state.senha,
-      })
-      .then(() => {
-        autoLogin();
-      })
-      .catch(() => {
-        Alert.alert('Erro ao criar conta');
-      });
-  }
+    let inputsOk = false;
+    var erro = '';
+    if (
+      this.state.nome.length > 0 &&
+      this.state.email.length > 0 &&
+      this.state.matricula.length > 0 &&
+      this.state.telefone.length > 0 &&
+      this.state.senha.length > 0 &&
+      this.state.senhaConfirm.length > 0
+    ) {
+      if (this.state.email.match(/(@)/)) {
+        inputsOk = true;
+      } else {
+        erro = 'Informe um e-mail válido!';
+      }
+      if (this.state.matricula.length < 14) {
+        erro = 'Informe uma matricula válida!';
+      }
+      if (this.state.telefone.length < 8) {
+        erro = 'Informe um telefone válido!';
+      }
+      if (this.state.senha.length < 7) {
+        erro = 'Informe uma senha com mais de 8 caracteres!';
+      }
+      if (this.state.senha != this.state.senhaConfirm) {
+        erro = 'As senhas não conferem!';
+      }
+    } else {
+      erro = 'Preencha todos os campos!';
+    }
+
+    if (inputsOk) {
+      await api
+        .post('/authUser/', {
+          name: this.state.nome,
+          email: this.state.email,
+          phone: this.state.telefone,
+          enrollment: this.state.matricula,
+          password: this.state.senha,
+        })
+        .then(() => {
+          this.autoLogin();
+        })
+        .catch(() => {
+          Alert.alert('Erro ao criar conta');
+        });
+    } else {
+      Alert.alert('Erro ao criar conta', erro);
+    }
+  };
 
   render() {
     return (
@@ -84,81 +119,83 @@ export default class Cadastro extends Component {
             contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
             <View style={styles.pinkBox}>
               <Text style={styles.inText}>Criar conta</Text>
-
-              <TextInput
-                autoCapitalize="none"
-                autoCorrect={false}
+              <Input
                 placeholder="Nome"
-                style={styles.input}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.nome}
-                onChangeText={(text) => this.setState({nome: text})}
+                onChangeText={text => this.setState({nome: text})}
               />
 
-              <TextInput
-                autoCapitalize="none"
-                autoCorrect={false}
+              <Input
                 placeholder="Email"
-                style={styles.input}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
+                onChangeText={text => this.setState({email: text})}
               />
 
-              <TextInput
+              <Input
                 autoCapitalize="none"
-                autoCorrect={false}
                 placeholder="Matricula"
-                style={styles.input}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.matricula}
-                onChangeText={(text) => this.setState({matricula: text})}
+                onChangeText={text => this.setState({matricula: text})}
               />
 
-              <TextInput
+              <Input
                 autoCapitalize="none"
-                autoCorrect={false}
                 placeholder="Telefone"
-                style={styles.input}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.telefone}
-                onChangeText={(text) => this.setState({telefone: text})}
+                onChangeText={text => this.setState({telefone: text})}
               />
 
-              <TextInput
+              <Input
                 autoCapitalize="none"
-                autoCorrect={false}
                 placeholder="Senha"
-                style={styles.input}
-                secureTextEntry={true}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.senha}
-                onChangeText={(text) => this.setState({senha: text})}
+                onChangeText={text => this.setState({senha: text})}
               />
 
-              <TextInput
+              <Input
                 autoCapitalize="none"
-                autoCorrect={false}
                 placeholder="Confirme a senha"
-                style={styles.input}
-                secureTextEntry={true}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
                 value={this.state.senhaConfirm}
-                onChangeText={(text) => this.setState({senhaConfirm: text})}
+                onChangeText={text => this.setState({senhaConfirm: text})}
               />
 
-              <TouchableOpacity onPress={this.handleCadastro} style={styles.button}>
+              <TouchableOpacity
+                onPress={this.handleCadastro}
+                style={styles.button}>
                 <Text style={styles.buttonText}>Cadastrar</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   this.props.navigation.navigate('Login');
                 }}
-                style={{marginTop: 10}}
-              >
+                style={{marginTop: 10}}>
                 <Text style={styles.linkLogin}>Já é registrado?</Text>
-                <Text style={styles.linkLogin}>Fazer Login!</Text>
+                <Text style={styles.linkLogin}>Faça o login!</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
         </ImageBackground>
       </KeyboardAvoidingView>
-    )
+    );
   }
 }
 
@@ -171,7 +208,7 @@ const styles = StyleSheet.create({
   },
   pinkBox: {
     width: 290,
-    height: 535,
+    height: 545,
     backgroundColor: '#F08080',
     alignItems: 'center',
     justifyContent: 'center',
@@ -179,21 +216,24 @@ const styles = StyleSheet.create({
     elevation: 15,
   },
   inText: {
-    marginTop: 10,
     fontSize: 30,
     color: '#FFF',
+    marginTop: 10,
     marginLeft: 10,
     marginRight: 10,
+    marginBottom: 10,
+  },
+  inputContainer: {
+    width: 240,
+    marginBottom: 10,
   },
   input: {
     backgroundColor: '#FFF',
-    width: 240,
-    marginTop: 20,
-    borderRadius: 8,
-    height: 40,
     borderWidth: 1,
     borderColor: '#DDD',
-    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  inputText: {
     color: '#121212',
   },
   boxBotoes: {
