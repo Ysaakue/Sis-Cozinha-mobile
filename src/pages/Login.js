@@ -22,7 +22,7 @@ export default class Login extends Component {
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        this.props.navigation.navigate('Cardapio', {token});
+        this.props.navigation.navigate('SelecaoDias', {token});
       }
     });
   }
@@ -41,7 +41,7 @@ export default class Login extends Component {
         .then(response => {
           const {token} = response.data;
           this.salvar(token);
-          this.props.navigation.navigate('Cardapio', {token});
+          this.props.navigation.navigate('CardSelecaoDiasapio', {token});
         })
         .catch((error) => {
           console.warn(error);
