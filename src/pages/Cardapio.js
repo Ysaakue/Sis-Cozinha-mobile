@@ -1,269 +1,114 @@
-import React, { useEffect } from 'react';
+import React, { Component } from 'react';
+import { ListItem, Icon } from 'react-native-elements'
 import api from '../services/api';
 import {
-    SafeAreaView,
-    ImageBackground,
-    View,
-    Text,
-    StyleSheet
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  FlatList
 } from 'react-native';
 
-export default function Cardapio({ navigation }) {
-    const token = navigation.getParam('token');
-    var cardapio;
-    
-    async function dadosMeal(){
-        await api
-        .get(`/menuWeek/meal/${cardapio.monday.morning.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.monday.morning.meal = response.data.data;
-            console.log(cardapio.monday.morning.meal);
-        })
-        .catch(error => {
-            console.warn(error);
-        })
+const list = [{
+    id: '1',
+    dia: 'Segunda',
+    abrev: 'seg',
+  },
+  {
+    id: '2',
+    dia: 'Terça',
+    abrev: 'Ter'
+  },
+  {
+    id: '3',
+    dia: 'Quarta',
+    abrev: 'Qua'
+  },
+  {
+    id: '4',
+    dia: 'Quinta',
+    abrev: 'Qui'
+  },
+  {
+    id: '5',
+    dia: 'Sexta',
+    abrev: 'Sex'
+  }
+]
 
-        await api
-        .get(`/menuWeek/meal/${cardapio.monday.afternoon.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.monday.afternoon.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
+export default class Cardapio extends Component {
+  state = {
+    token: this.props.navigation.getParam('token'),
+    cardapio: {},
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    ready: false,
+  }
 
-        await api
-        .get(`/menuWeek/meal/${cardapio.monday.night.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.monday.night.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
+  componentDidMount() {
+    api.get('/menuWeek/date/14-01-2019', {
+      headers: { Authorization: "bearer " + this.state.token }
+    })
+    .then(response => {
+        this.setState({ cardapio: response.data.data });
+    })
+    .catch(error => {
+        console.warn(error);
+    })
+  }
 
-        await api
-        .get(`/menuWeek/meal/${cardapio.tuesday.morning.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.tuesday.morning.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
+  keyExtractor = (item, index) => index.toString()
 
-        await api
-        .get(`/menuWeek/meal/${cardapio.tuesday.afternoon.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.tuesday.afternoon.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
+  handleDay = () => {
+    console.log(this.keyExtractor);
+  }
+  
+  renderItem = ({ item }) => (
+    <ListItem
+      key={item.id}
+      title={item.dia}
+      rightIcon={
+        <Icon 
+          name='chevron-right'
+          type='font-awesome'
+        />}
+      style={styles.ListItem}
+      onPress={this.handleDay}
+    />
+  )
 
-        await api
-        .get(`/menuWeek/meal/${cardapio.tuesday.night.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.tuesday.night.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.wednesday.morning.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.wednesday.morning.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.wednesday.afternoon.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.wednesday.afternoon.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.wednesday.night.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.wednesday.night.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.thursday.morning.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.thursday.morning.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.thursday.afternoon.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.thursday.afternoon.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.thursday.night.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.thursday.night.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.friday.morning.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.friday.morning.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.friday.afternoon.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.friday.afternoon.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-
-        await api
-        .get(`/menuWeek/meal/${cardapio.friday.night.meal}`, {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio.friday.night.meal = response.data.data;
-        })
-        .catch(error => {
-            console.warn(error);
-        })
-    }
-
-    useEffect(() => {
-        api.get('/menuWeek/date/14-01-2019', {
-            headers: { Authorization: "bearer " + token }
-        })
-        .then(response => {
-            cardapio = response.data.data;
-            isLoading = false;
-
-            dadosMeal();
-        })
-        .catch(error => {
-            console.warn(error);
-            isLoading = false;
-        })
-    }, []);
-
+  render() {
     return (
-        <SafeAreaView>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>
-                    Cardápio Semanal
-                </Text>
-            </View>
+      <SafeAreaView>
+          <View style={styles.header}>
+              <Text style={styles.headerText}>
+                  Cardápio Semanal
+              </Text>
+          </View>
 
-
-            <View style={styles.daysContainer}>
-                <View style={styles.double}>
-                    <View style={styles.daycard}>
-                        <ImageBackground
-                            source={{ uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${cardapio.monday.morning.meal}`}}
-                            style={styles.Imagebackground}
-                        >
-                            <View style={styles.footerDayCard}>
-                                <Text style={styles.texFooterDayCard}>
-                                    Segunda
-                                </Text>
-                            </View>
-                        </ImageBackground>
-                    </View>
-                </View>
-            </View>
-        </SafeAreaView>
+          <FlatList
+            keyExtractor={this.keyExtractor}
+            data={list}
+            renderItem={this.renderItem}
+          />
+      </SafeAreaView>
     );
+  }
 }
 
 const styles = StyleSheet.create({
-    header: {
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    headerText: {
-        fontSize: 30,
-    },
-    daysContainer: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    double: {
-        flexDirection: 'row',
-        marginTop: 10,
-    },
-    daycard: {
-        backgroundColor: '#000',
-        height: 150,
-        width: 150,
-        marginHorizontal: 10,
-    },
-    friday: {
-        marginTop: 10,
-        backgroundColor: '#000',
-        height: 150,
-        width: 320,
-        marginHorizontal: 10,
-    },
-    Imagebackground: {
-        height: 150,
-        width: 150,
-    },
-    footerDayCard :{
-
-    },
-    texFooterDayCard: {
-
-    }
+  header: {
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+  },
+  headerText: {
+      fontSize: 30,
+  },
+  ListItem: {
+    paddingTop: 15,
+  }
 });
