@@ -11,12 +11,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 
 export default class Login extends Component {
   state = {
     matricula: '',
     senha: '',
+    loading: true,
   };
 
   componentDidMount() {
@@ -50,7 +52,8 @@ export default class Login extends Component {
       erro = 'Preencha todos os campos!';
     }
 
-    if (validations.length == 2) {
+    if (validations.length === 2) {
+      this.state.loading = true;
       await api
         .post('/authUser/login', {
           enrollment: this.state.matricula,
@@ -59,9 +62,10 @@ export default class Login extends Component {
         .then(response => {
           const {token} = response.data;
           this.salvar(token);
-          this.props.navigation.navigate('CardSelecaoDiasapio', {token});
+          this.props.navigation.navigate('SelecaoDias', {token});
         })
         .catch(error => {
+          this.state.loading = false;
           console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
         });
@@ -73,45 +77,57 @@ export default class Login extends Component {
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
-        <ImageBackground
-          source={require('../assets/background_login.jpeg')}
-          style={styles.imageBackground}>
-          <View style={styles.pinkBox}>
-            <Text style={styles.inText}>Login</Text>
+        {this.state.loading ? (
+          <ImageBackground
+            source={require('../assets/background_login.jpeg')}
+            style={styles.imageBackground}>
+            <View style={styles.pinkBox}>
+              <Text style={styles.inText}>Sisa</Text>
 
-            <Input
-              placeholder="Matricula"
-              containerStyle={styles.inputContainer}
-              inputContainerStyle={styles.input}
-              inputStyle={styles.inputText}
-              value={this.state.matricula}
-              onChangeText={text => this.setState({matricula: text})}
+              <Input
+                placeholder="Matricula"
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
+                value={this.state.matricula}
+                onChangeText={text => this.setState({matricula: text})}
+              />
+              <Input
+                placeholder="Senha"
+                autoCapitalize="none"
+                secureTextEntry={true}
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.input}
+                inputStyle={styles.inputText}
+                value={this.state.senha}
+                onChangeText={text => this.setState({senha: text})}
+              />
+
+              <TouchableOpacity
+                onPress={this.handleLogin}
+                style={styles.button}>
+                <Text style={styles.buttonText}>Entrar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('Cadastro');
+                }}
+                style={{marginTop: 15}}>
+                <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
+                <Text style={styles.linkCadastro}>Crie uma conta!</Text>
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
+        ) : (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              color="#00f"
+              size="large"
             />
-            <Input
-              placeholder="Senha"
-              autoCapitalize="none"
-              secureTextEntry={true}
-              containerStyle={styles.inputContainer}
-              inputContainerStyle={styles.input}
-              inputStyle={styles.inputText}
-              value={this.state.senha}
-              onChangeText={text => this.setState({senha: text})}
-            />
-
-            <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
-              <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('Cadastro');
-              }}
-              style={{marginTop: 15}}>
-              <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
-              <Text style={styles.linkCadastro}>Crie uma conta!</Text>
-            </TouchableOpacity>
           </View>
-        </ImageBackground>
+        )}
       </KeyboardAvoidingView>
     );
   }
@@ -124,9 +140,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  activityIndicatorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  activityIndicator: {
+    paddingBottom: 40,
+  },
   pinkBox: {
     width: 290,
-    height: 300,
+    height: 330,
     backgroundColor: '#F08080',
     alignItems: 'center',
     borderRadius: 8,
@@ -134,7 +159,8 @@ const styles = StyleSheet.create({
   },
   inText: {
     marginTop: 10,
-    fontSize: 30,
+    marginBottom: 20,
+    fontSize: 40,
     color: '#FFF',
   },
   inputContainer: {

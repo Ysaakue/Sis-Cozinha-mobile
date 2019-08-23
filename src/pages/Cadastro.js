@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import api from '../services/api';
 
@@ -88,7 +89,7 @@ export default class Cadastro extends Component {
       } else {
         erro = 'Informe uma senha com mais de 8 caracteres!';
       }
-      if (this.state.senha != this.state.senhaConfirm) {
+      if (this.state.senha.match(this.state.senhaConfirm)) {
         validations.push('ok');
       } else {
         erro = 'As senhas não conferem!';
@@ -98,6 +99,7 @@ export default class Cadastro extends Component {
     }
 
     if (validations.length == 5) {
+      this.state.isLoading = true;
       await api
         .post('/authUser/', {
           name: this.state.nome,
@@ -123,84 +125,97 @@ export default class Cadastro extends Component {
         <ImageBackground
           source={require('../assets/background_login.jpeg')}
           style={styles.imageBackground}>
-          <ScrollView
-            contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
-            <View style={styles.pinkBox}>
-              <Text style={styles.inText}>Criar conta</Text>
-              <Input
-                placeholder="Nome"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.nome}
-                onChangeText={text => this.setState({nome: text})}
+          {this.state.isLoading ? (
+            <View style={styles.activityIndicatorContainer}>
+              <ActivityIndicator
+                style={styles.activityIndicator}
+                color="#00f"
+                size="large"
               />
-
-              <Input
-                placeholder="Email"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.email}
-                onChangeText={text => this.setState({email: text})}
-              />
-
-              <Input
-                autoCapitalize="none"
-                placeholder="Matricula"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.matricula}
-                onChangeText={text => this.setState({matricula: text})}
-              />
-
-              <Input
-                autoCapitalize="none"
-                placeholder="Telefone"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.telefone}
-                onChangeText={text => this.setState({telefone: text})}
-              />
-
-              <Input
-                autoCapitalize="none"
-                placeholder="Senha"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.senha}
-                onChangeText={text => this.setState({senha: text})}
-              />
-
-              <Input
-                autoCapitalize="none"
-                placeholder="Confirme a senha"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.senhaConfirm}
-                onChangeText={text => this.setState({senhaConfirm: text})}
-              />
-
-              <TouchableOpacity
-                onPress={this.handleCadastro}
-                style={styles.button}>
-                <Text style={styles.buttonText}>Cadastrar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.navigation.navigate('Login');
-                }}
-                style={{marginTop: 10}}>
-                <Text style={styles.linkLogin}>Já é registrado?</Text>
-                <Text style={styles.linkLogin}>Faça o login!</Text>
-              </TouchableOpacity>
             </View>
-          </ScrollView>
+          ) : (
+            <ScrollView
+              contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
+              <View style={styles.pinkBox}>
+                <Text style={styles.inText}>Criar conta</Text>
+                <Input
+                  placeholder="Nome"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.nome}
+                  onChangeText={text => this.setState({nome: text})}
+                />
+
+                <Input
+                  placeholder="Email"
+                  autoCapitalize="none"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.email}
+                  onChangeText={text => this.setState({email: text})}
+                />
+
+                <Input
+                  autoCapitalize="none"
+                  placeholder="Matricula"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.matricula}
+                  onChangeText={text => this.setState({matricula: text})}
+                />
+
+                <Input
+                  autoCapitalize="none"
+                  placeholder="Telefone"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.telefone}
+                  onChangeText={text => this.setState({telefone: text})}
+                />
+
+                <Input
+                  autoCapitalize="none"
+                  secureTextEntry={true}
+                  placeholder="Senha"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.senha}
+                  onChangeText={text => this.setState({senha: text})}
+                />
+
+                <Input
+                  autoCapitalize="none"
+                  secureTextEntry={true}
+                  placeholder="Confirme a senha"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.input}
+                  inputStyle={styles.inputText}
+                  value={this.state.senhaConfirm}
+                  onChangeText={text => this.setState({senhaConfirm: text})}
+                />
+
+                <TouchableOpacity
+                  onPress={this.handleCadastro}
+                  style={styles.button}>
+                  <Text style={styles.buttonText}>Cadastrar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.navigation.navigate('Login');
+                  }}
+                  style={{marginTop: 10}}>
+                  <Text style={styles.linkLogin}>Já é registrado?</Text>
+                  <Text style={styles.linkLogin}>Faça o login!</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
         </ImageBackground>
       </KeyboardAvoidingView>
     );

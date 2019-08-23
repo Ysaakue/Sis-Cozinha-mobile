@@ -104,7 +104,7 @@ export default class SelecaoDias extends Component {
 
   render() {
     return (
-      <SafeAreaView>
+      <SafeAreaView style={styles.container}>
         {
           this.state.ready ? (
               <View style={styles.listContainer}>
@@ -121,7 +121,6 @@ export default class SelecaoDias extends Component {
           )
         }
 
-        
         <Button
           title="Sair"
           containerStyle={styles.logoutBtnContainer}
@@ -134,6 +133,10 @@ export default class SelecaoDias extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+    justifyContent: 'space-between',
+  },
   listContainer:{
     justifyContent: 'center',
     alignContent: 'center',
