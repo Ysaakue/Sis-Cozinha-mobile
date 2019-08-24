@@ -76,6 +76,10 @@ export default class SelecaoRefeicao extends Component {
     return (
       <SafeAreaView>
         {this.state.ready ? (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
+          </View>
+        ) : (
           <View>
             { this.state.morning != null ? (
               <Image 
@@ -116,12 +120,7 @@ export default class SelecaoRefeicao extends Component {
               </View>
             )}
           </View>
-        ) : (
-          <View style={styles.activityIndicatorContainer}>
-            <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
-          </View>
-        )
-        }
+        )}
       </SafeAreaView>
     )
   }
