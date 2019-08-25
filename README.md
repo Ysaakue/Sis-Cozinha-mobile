@@ -1,0 +1,1 @@
+O siscozinha ou "sisa" é um sistema feito para auxiliar na administração da cozinha do IFCE, atualmente ele engloba um sistema web: http://siscozinha.herokuapp.com com diferentes niveis de acesso para os administradores da cozinha e para os alunos da instituição e um app para os alunos da Instituição.
