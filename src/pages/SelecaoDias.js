@@ -43,6 +43,7 @@ export default class SelecaoDias extends Component {
     token: this.props.navigation.getParam('token'),
     dias: [],
     ready: false,
+    semCardapio: false,
   }
 
   handleLogout = async () => {
@@ -55,17 +56,31 @@ export default class SelecaoDias extends Component {
   }
 
   componentDidMount() {
-    api.get('/menuWeek/date/14-01-2019', {
+    let date = new Date().getDate(); //Current Date
+    let dia = new Date().getDay()-1; //Current Date
+    let month = new Date().getMonth() + 1; //Current Month
+    let year = new Date().getFullYear(); //Current Year
+    if(dia === -1){
+      dia=dia+7;
+    }
+    date-=dia;
+    console.log(date,month,year, dia);
+    api.get(`/menuWeek/date/${date}-${month}-${year}`, {
       headers: { Authorization: "bearer " + this.state.token }
     })
     .then(response => {
-        this.setState({ dias: [...this.state.dias , response.data.data.monday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.tuesday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.wednesday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.thursday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.friday] });
+        if(response.data.data == null){
+          this.setState({ semCardapio: true });
+          
+        } else {
+          this.setState({ dias: [...this.state.dias , response.data.data.monday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.tuesday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.wednesday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.thursday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.friday] });
 
-        this.setState({ ready: true });
+          this.setState({ ready: true });
+        }
     })
     .catch(error => {
         console.warn(error);
@@ -104,24 +119,28 @@ export default class SelecaoDias extends Component {
 
   render() {
     return (
-      <SafeAreaView>
-        {
-          this.state.ready ? (
-              <View style={styles.listContainer}>
-                <FlatList
-                  keyExtractor={item => item.id}
-                  data={list}
-                  renderItem={this.renderItem}
-                />
-              </View>
-          ) : (
-            <View style={styles.activityIndicatorContainer}>
-              <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
+      <SafeAreaView style={styles.container}>
+        { this.state.semCardapio ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>
+                Sem cardapio para essa semana :(
+              </Text>
             </View>
-          )
+          ) : this.state.ready ? (
+            <View style={styles.listContainer}>
+              <FlatList
+                keyExtractor={item => item.id}
+                data={list}
+                renderItem={this.renderItem}
+              />
+            </View>
+        ) : (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
+          </View>
+        )
         }
 
-        
         <Button
           title="Sair"
           containerStyle={styles.logoutBtnContainer}
@@ -134,6 +153,10 @@ export default class SelecaoDias extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+    justifyContent: 'space-between',
+  },
   listContainer:{
     justifyContent: 'center',
     alignContent: 'center',
@@ -159,5 +182,15 @@ const styles = StyleSheet.create({
     marginTop: 30,
     width: '100%',
     backgroundColor: 'firebrick',
+    height: 40,
   },
+  empty: {
+    width: '100%',
+    height: '50%',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyText: {
+    fontSize: 15,
+  }
 });

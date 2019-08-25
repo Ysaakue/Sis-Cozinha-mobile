@@ -11,12 +11,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 
 export default class Login extends Component {
   state = {
     matricula: '',
     senha: '',
+    Logando: false,
   };
 
   componentDidMount() {
@@ -32,6 +34,7 @@ export default class Login extends Component {
   };
 
   handleLogin = async () => {
+    this.setState({ login: true });
     var erro = '';
     var validations = [];
 
@@ -60,13 +63,16 @@ export default class Login extends Component {
           const {token} = response.data;
           this.salvar(token);
           this.props.navigation.navigate('CardSelecaoDiasapio', {token});
+          this.setState({ Logando: false });
         })
         .catch(error => {
-          console.warn(error);
+          // console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
+          this.setState({ Logando: false });
         });
     } else {
       Alert.alert('Erro ao fazer login', erro);
+      this.setState({ Logando: false });
     }
   };
 
@@ -99,14 +105,23 @@ export default class Login extends Component {
             />
 
             <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
-              <Text style={styles.buttonText}>Login</Text>
+              { this.state.Logando ? (
+                <ActivityIndicator
+                style={styles.activityIndicator}
+                color="#00f"
+                size="large"
+                />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => {
                 this.props.navigation.navigate('Cadastro');
               }}
-              style={{marginTop: 15}}>
+              style={{marginTop: 15}}
+            >
               <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
               <Text style={styles.linkCadastro}>Crie uma conta!</Text>
             </TouchableOpacity>
