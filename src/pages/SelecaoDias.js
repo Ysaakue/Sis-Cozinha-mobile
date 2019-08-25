@@ -64,7 +64,6 @@ export default class SelecaoDias extends Component {
       dia=dia+7;
     }
     date-=dia;
-    console.log(date,month,year, dia);
     api.get(`/menuWeek/date/${date}-${month}-${year}`, {
       headers: { Authorization: "bearer " + this.state.token }
     })
