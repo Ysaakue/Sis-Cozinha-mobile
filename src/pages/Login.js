@@ -24,7 +24,10 @@ export default class Login extends Component {
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        this.props.navigation.navigate('SelecaoDias', {token});
+        console.log('tem token',token);
+        console.log({token:token});
+        
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       }
     });
   }
@@ -39,10 +42,10 @@ export default class Login extends Component {
     var validations = [];
 
     if (this.state.matricula.length > 0 && this.state.senha.length) {
-      if (this.state.senha.length > 7) {
+      if (this.state.senha.length >= 6) {
         validations.push('ok');
       } else {
-        erro = 'Informe uma senha com mais de 8 caracteres!';
+        erro = 'Informe uma senha com 6 ou mais caracteres!';
       }
       if (this.state.matricula.length == 14) {
         validations.push('ok');
@@ -54,18 +57,22 @@ export default class Login extends Component {
     }
 
     if (validations.length == 2) {
+
       await api
         .post('/authUser/login', {
           enrollment: this.state.matricula,
           password: this.state.senha,
         })
         .then(response => {
-          const {token} = response.data;
+          
+          const token = response.data.token;
+          console.log(token);
           this.salvar(token);
-          this.props.navigation.navigate('CardSelecaoDiasapio', {token});
+          this.props.navigation.navigate('SelecaoDias', {token:token});
           this.setState({ Logando: false });
         })
         .catch(error => {
+          console.log(error.response);
           // console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
           this.setState({ Logando: false });

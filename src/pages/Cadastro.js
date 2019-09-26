@@ -30,7 +30,7 @@ export default class Cadastro extends Component {
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        this.props.navigation.navigate('SelecaoDias', {token});
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       }
     });
   }
@@ -44,15 +44,14 @@ export default class Cadastro extends Component {
   };
 
   autoLogin = async () => {
-    await api
-      .post('/authUser/login', {
+    await api.post('/authUser/login', {
         enrollment: this.state.matricula,
         password: this.state.senha,
       })
       .then(response => {
         const {token} = response.data;
         this.salvar(token);
-        this.props.navigation.navigate('SelecaoDias', {token});
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       })
       .catch(() => {
         Alert.alert('Erro ao fazer login');
@@ -86,10 +85,10 @@ export default class Cadastro extends Component {
       } else {
         erro = 'Informe um telefone válido!';
       }
-      if (this.state.senha.length > 7) {
+      if (this.state.senha.length >= 6) {
         validations.push('ok');
       } else {
-        erro = 'Informe uma senha com mais de 8 caracteres!';
+        erro = 'Informe uma senha com 6 ou mais caracteres!';
       }
       if (this.state.senha.match(this.state.senhaConfirm)) {
         validations.push('ok');

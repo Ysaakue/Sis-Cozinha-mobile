@@ -39,12 +39,18 @@ const list = [{
 ]
 
 export default class SelecaoDias extends Component {
-  state = {
-    token: this.props.navigation.getParam('token'),
-    dias: [],
-    ready: false,
-    semCardapio: false,
-  }
+  constructor(props) {
+    super(props)
+    this.state = {
+      token: this.props.navigation.getParam('token'),
+      dias: [],
+      ready: false,
+      semCardapio: false,
+      semana: '-'
+    }
+  } 
+
+  
 
   handleLogout = async () => {
     await AsyncStorage.removeItem('token');
@@ -52,22 +58,27 @@ export default class SelecaoDias extends Component {
   };
 
   static navigationOptions = {
-    title: 'Cardápio Semanal',
+    title: 'Cardápio Semanal'
   }
 
   componentDidMount() {
-    let date = new Date().getDate(); //Current Date
-    let dia = new Date().getDay()-1; //Current Date
-    let month = new Date().getMonth() + 1; //Current Month
-    let year = new Date().getFullYear(); //Current Year
+
+    let date = new Date();
+    let myDate = new Date().getDate();
+    let dia = String(date.getDay()-1).padStart(2, '0');
+    let mes = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let ano = date.getFullYear();
     if(dia === -1){
       dia=dia+7;
     }
-    date-=dia;
-    api.get(`/menuWeek/date/${date}-${month}-${year}`, {
+    myDate-=dia;
+    date = myDate + '-' + mes + '-' + ano;    
+    api.get(`/menuWeek/date/${date}`, {
       headers: { Authorization: "bearer " + this.state.token }
     })
     .then(response => {
+      console.log(response);
+      
         if(response.data.data == null){
           this.setState({ semCardapio: true });
           
@@ -91,8 +102,11 @@ export default class SelecaoDias extends Component {
   keyExtractor = (item, index) => index.toString()
 
   handleDay = (index) => {
+    
     const dia = list[index];
     const temp = this.state.dias[index];
+    console.log(this.state);
+
     const morning = temp.morning;
     const afternoon = temp.afternoon;
     const night = temp.night;
