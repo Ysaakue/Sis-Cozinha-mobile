@@ -24,9 +24,6 @@ export default class Login extends Component {
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        console.log('tem token',token);
-        console.log({token:token});
-        
         this.props.navigation.navigate('SelecaoDias', {token:token});
       }
     });
@@ -64,16 +61,12 @@ export default class Login extends Component {
           password: this.state.senha,
         })
         .then(response => {
-          
           const token = response.data.token;
-          console.log(token);
           this.salvar(token);
           this.props.navigation.navigate('SelecaoDias', {token:token});
           this.setState({ Logando: false });
         })
         .catch(error => {
-          console.log(error.response);
-          // console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
           this.setState({ Logando: false });
         });
