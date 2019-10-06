@@ -39,11 +39,18 @@ const list = [{
 ]
 
 export default class SelecaoDias extends Component {
-  state = {
-    token: this.props.navigation.getParam('token'),
-    dias: [],
-    ready: false,
-  }
+  constructor(props) {
+    super(props)
+    this.state = {
+      token: this.props.navigation.getParam('token'),
+      dias: [],
+      ready: false,
+      semCardapio: false,
+      semana: '-'
+    }
+  } 
+
+  
 
   handleLogout = async () => {
     await AsyncStorage.removeItem('token');
@@ -51,21 +58,38 @@ export default class SelecaoDias extends Component {
   };
 
   static navigationOptions = {
-    title: 'Cardápio Semanal',
+    title: 'Cardápio Semanal'
   }
 
   componentDidMount() {
-    api.get('/menuWeek/date/14-01-2019', {
+
+    let date = new Date();
+    let myDate = new Date().getDate();
+    let dia = String(date.getDay()-1).padStart(2, '0');
+    let mes = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let ano = date.getFullYear();
+    if(dia === -1){
+      dia=dia+7;
+    }
+    myDate-=dia;
+    date = myDate + '-' + mes + '-' + ano;    
+    api.get(`/menuWeek/date/${date}`, {
       headers: { Authorization: "bearer " + this.state.token }
     })
     .then(response => {
-        this.setState({ dias: [...this.state.dias , response.data.data.monday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.tuesday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.wednesday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.thursday] });
-        this.setState({ dias: [...this.state.dias , response.data.data.friday] });
 
-        this.setState({ ready: true });
+        if(response.data.data == null){
+          this.setState({ semCardapio: true });
+          
+        } else {
+          this.setState({ dias: [...this.state.dias , response.data.data.monday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.tuesday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.wednesday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.thursday] });
+          this.setState({ dias: [...this.state.dias , response.data.data.friday] });
+
+          this.setState({ ready: true });
+        }
     })
     .catch(error => {
         console.warn(error);
@@ -76,7 +100,7 @@ export default class SelecaoDias extends Component {
 
   keyExtractor = (item, index) => index.toString()
 
-  handleDay = (index) => {
+  handleDay = (index) => {  
     const dia = list[index];
     const temp = this.state.dias[index];
     const morning = temp.morning;
@@ -105,20 +129,25 @@ export default class SelecaoDias extends Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        {
-          this.state.ready ? (
-              <View style={styles.listContainer}>
-                <FlatList
-                  keyExtractor={item => item.id}
-                  data={list}
-                  renderItem={this.renderItem}
-                />
-              </View>
-          ) : (
-            <View style={styles.activityIndicatorContainer}>
-              <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
+        { this.state.semCardapio ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>
+                Sem cardapio para essa semana :(
+              </Text>
             </View>
-          )
+          ) : this.state.ready ? (
+            <View style={styles.listContainer}>
+              <FlatList
+                keyExtractor={item => item.id}
+                data={list}
+                renderItem={this.renderItem}
+              />
+            </View>
+        ) : (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator style={styles.activityIndicator} color='#00f' size='large'/>
+          </View>
+        )
         }
 
         <Button
@@ -162,5 +191,15 @@ const styles = StyleSheet.create({
     marginTop: 30,
     width: '100%',
     backgroundColor: 'firebrick',
+    height: 40,
   },
+  empty: {
+    width: '100%',
+    height: '50%',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyText: {
+    fontSize: 15,
+  }
 });

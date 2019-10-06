@@ -71,9 +71,6 @@ export default class SelecaoRefeicao extends Component {
       .catch(error => {
         console.warn(error);
       });
-    console.log(this.state.morning);
-    console.log(this.state.afternoon);
-    console.log(this.state.night);
     this.setState({ready: true});
   };
 

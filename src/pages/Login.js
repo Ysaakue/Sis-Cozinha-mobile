@@ -18,13 +18,13 @@ export default class Login extends Component {
   state = {
     matricula: '',
     senha: '',
-    loading: true,
+    Logando: false,
   };
 
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        this.props.navigation.navigate('SelecaoDias', {token});
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       }
     });
   }
@@ -34,14 +34,15 @@ export default class Login extends Component {
   };
 
   handleLogin = async () => {
+    this.setState({ login: true });
     var erro = '';
     var validations = [];
 
     if (this.state.matricula.length > 0 && this.state.senha.length) {
-      if (this.state.senha.length > 7) {
+      if (this.state.senha.length >= 6) {
         validations.push('ok');
       } else {
-        erro = 'Informe uma senha com mais de 8 caracteres!';
+        erro = 'Informe uma senha com 6 ou mais caracteres!';
       }
       if (this.state.matricula.length == 14) {
         validations.push('ok');
@@ -52,82 +53,80 @@ export default class Login extends Component {
       erro = 'Preencha todos os campos!';
     }
 
-    if (validations.length === 2) {
-      this.state.loading = true;
+    if (validations.length == 2) {
+
       await api
         .post('/authUser/login', {
           enrollment: this.state.matricula,
           password: this.state.senha,
         })
         .then(response => {
-          const {token} = response.data;
+          const token = response.data.token;
           this.salvar(token);
-          this.props.navigation.navigate('SelecaoDias', {token});
+          this.props.navigation.navigate('SelecaoDias', {token:token});
+          this.setState({ Logando: false });
         })
         .catch(error => {
-          this.state.loading = false;
-          console.warn(error);
           Alert.alert('Erro ao fazer login', 'Matricula ou senha inválidos!');
+          this.setState({ Logando: false });
         });
     } else {
       Alert.alert('Erro ao fazer login', erro);
+      this.setState({ Logando: false });
     }
   };
 
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
-        {this.state.loading ? (
-          <ImageBackground
-            source={require('../assets/background_login.jpeg')}
-            style={styles.imageBackground}>
-            <View style={styles.pinkBox}>
-              <Text style={styles.inText}>Sisa</Text>
+        <ImageBackground
+          source={require('../assets/background_login.jpeg')}
+          style={styles.imageBackground}>
+          <View style={styles.pinkBox}>
+            <Text style={styles.inText}>Login</Text>
 
-              <Input
-                placeholder="Matricula"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.matricula}
-                onChangeText={text => this.setState({matricula: text})}
-              />
-              <Input
-                placeholder="Senha"
-                autoCapitalize="none"
-                secureTextEntry={true}
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.input}
-                inputStyle={styles.inputText}
-                value={this.state.senha}
-                onChangeText={text => this.setState({senha: text})}
-              />
-
-              <TouchableOpacity
-                onPress={this.handleLogin}
-                style={styles.button}>
-                <Text style={styles.buttonText}>Entrar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.props.navigation.navigate('Cadastro');
-                }}
-                style={{marginTop: 15}}>
-                <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
-                <Text style={styles.linkCadastro}>Crie uma conta!</Text>
-              </TouchableOpacity>
-            </View>
-          </ImageBackground>
-        ) : (
-          <View style={styles.activityIndicatorContainer}>
-            <ActivityIndicator
-              style={styles.activityIndicator}
-              color="#00f"
-              size="large"
+            <Input
+              placeholder="Matricula"
+              containerStyle={styles.inputContainer}
+              inputContainerStyle={styles.input}
+              inputStyle={styles.inputText}
+              value={this.state.matricula}
+              onChangeText={text => this.setState({matricula: text})}
             />
+            <Input
+              placeholder="Senha"
+              autoCapitalize="none"
+              secureTextEntry={true}
+              containerStyle={styles.inputContainer}
+              inputContainerStyle={styles.input}
+              inputStyle={styles.inputText}
+              value={this.state.senha}
+              onChangeText={text => this.setState({senha: text})}
+            />
+
+            <TouchableOpacity onPress={this.handleLogin} style={styles.button}>
+              { this.state.Logando ? (
+                <ActivityIndicator
+                style={styles.activityIndicator}
+                color="#00f"
+                size="large"
+                />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('Cadastro');
+              }}
+              style={{marginTop: 15}}
+            >
+              <Text style={styles.linkCadastro}>Não é registrado ainda?</Text>
+              <Text style={styles.linkCadastro}>Crie uma conta!</Text>
+            </TouchableOpacity>
           </View>
-        )}
+        </ImageBackground>
       </KeyboardAvoidingView>
     );
   }
@@ -140,18 +139,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activityIndicatorContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  activityIndicator: {
-    paddingBottom: 40,
-  },
   pinkBox: {
     width: 290,
-    height: 330,
+    height: 300,
     backgroundColor: '#F08080',
     alignItems: 'center',
     borderRadius: 8,
@@ -159,8 +149,7 @@ const styles = StyleSheet.create({
   },
   inText: {
     marginTop: 10,
-    marginBottom: 20,
-    fontSize: 40,
+    fontSize: 30,
     color: '#FFF',
   },
   inputContainer: {

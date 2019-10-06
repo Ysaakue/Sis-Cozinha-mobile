@@ -24,12 +24,13 @@ export default class Cadastro extends Component {
     senha: '',
     senhaConfirm: '',
     isLoading: false,
+    Cadastrando: false,
   };
 
   componentDidMount() {
     AsyncStorage.getItem('token').then(token => {
       if (token) {
-        this.props.navigation.navigate('SelecaoDias', {token});
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       }
     });
   }
@@ -43,15 +44,14 @@ export default class Cadastro extends Component {
   };
 
   autoLogin = async () => {
-    await api
-      .post('/authUser/login', {
+    await api.post('/authUser/login', {
         enrollment: this.state.matricula,
         password: this.state.senha,
       })
       .then(response => {
         const {token} = response.data;
         this.salvar(token);
-        this.props.navigation.navigate('SelecaoDias', {token});
+        this.props.navigation.navigate('SelecaoDias', {token:token});
       })
       .catch(() => {
         Alert.alert('Erro ao fazer login');
@@ -59,6 +59,7 @@ export default class Cadastro extends Component {
   };
 
   handleCadastro = async () => {
+    this.setState({ Cadastrando: true });
     var erro = '';
     var validations = [];
     if (
@@ -84,10 +85,10 @@ export default class Cadastro extends Component {
       } else {
         erro = 'Informe um telefone válido!';
       }
-      if (this.state.senha.length > 7) {
+      if (this.state.senha.length >= 6) {
         validations.push('ok');
       } else {
-        erro = 'Informe uma senha com mais de 8 caracteres!';
+        erro = 'Informe uma senha com 6 ou mais caracteres!';
       }
       if (this.state.senha.match(this.state.senhaConfirm)) {
         validations.push('ok');
@@ -110,30 +111,34 @@ export default class Cadastro extends Component {
         })
         .then(() => {
           this.autoLogin();
+          this.setState({ Cadastrando: false });
         })
         .catch(() => {
           Alert.alert('Erro ao criar conta');
+          this.setState({ Cadastrando: false });
         });
     } else {
       Alert.alert('Erro ao criar conta', erro);
+      this.setState({ Cadastrando: false });
     }
   };
 
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'}>
-        <ImageBackground
-          source={require('../assets/background_login.jpeg')}
-          style={styles.imageBackground}>
-          {this.state.isLoading ? (
-            <View style={styles.activityIndicatorContainer}>
-              <ActivityIndicator
-                style={styles.activityIndicator}
-                color="#00f"
-                size="large"
-              />
-            </View>
-          ) : (
+        {this.state.isLoading ? (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              color="#00f"
+              size="large"
+            />
+          </View>
+        ) : (
+          <ImageBackground
+            source={require('../assets/background_login.jpeg')}
+            style={styles.imageBackground}
+          >
             <ScrollView
               contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
               <View style={styles.pinkBox}>
@@ -201,8 +206,17 @@ export default class Cadastro extends Component {
 
                 <TouchableOpacity
                   onPress={this.handleCadastro}
-                  style={styles.button}>
-                  <Text style={styles.buttonText}>Cadastrar</Text>
+                  style={styles.button}
+                >
+                  { this.state.Cadastrando ? (
+                    <ActivityIndicator
+                    style={styles.activityIndicator}
+                    color="#00f"
+                    size="large"
+                    />
+                  ) : (
+                    <Text style={styles.buttonText}>Cadastrar</Text>
+                  )}
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -215,8 +229,8 @@ export default class Cadastro extends Component {
                 </TouchableOpacity>
               </View>
             </ScrollView>
-          )}
-        </ImageBackground>
+          </ImageBackground>
+        )}
       </KeyboardAvoidingView>
     );
   }
@@ -288,4 +302,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ffffff',
   },
+  activityIndicatorContainer: {
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });

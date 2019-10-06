@@ -5,7 +5,7 @@ import SelecaoDias from './pages/SelecaoDias';
 import Cadastro from './pages/Cadastro';
 import SelecaoRefeicao from './pages/SelecaoRefeicao'
 
-const logado = createStackNavigator({
+const Logado = createStackNavigator({
   SelecaoDias,
   SelecaoRefeicao,
 })
@@ -14,6 +14,7 @@ export default createAppContainer(
   createSwitchNavigator({
     Login,
     Cadastro,
-    logado,
+    Logado,
+
   }),
 );
