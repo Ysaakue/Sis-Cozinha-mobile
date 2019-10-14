@@ -40,7 +40,7 @@ export default class Login extends Component {
     this.setState({ login: true });
     var erro = '';
     var validations = [];
-
+    
     if (this.state.matricula.length > 0 && this.state.senha.length) {
       if (this.state.senha.length >= 6) {
         validations.push('ok');

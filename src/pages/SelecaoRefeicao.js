@@ -91,7 +91,7 @@ export default class SelecaoRefeicao extends Component {
               <ImageBackground
                 style={styles.mealImageStart}
                 source={{
-                  uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${
+                  uri: `https://res.cloudinary.com/ddbpyte6h/image/upload/${
                     this.state.morning.imageUrl
                   }`,
                 }}>
@@ -107,7 +107,7 @@ export default class SelecaoRefeicao extends Component {
               <ImageBackground
                 style={styles.mealImageMidlle}
                 source={{
-                  uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${
+                  uri: `https://res.cloudinary.com/ddbpyte6h/image/upload/${
                     this.state.afternoon.imageUrl
                   }`,
                 }}>
@@ -123,7 +123,7 @@ export default class SelecaoRefeicao extends Component {
               <ImageBackground
                 style={styles.mealImageEnd}
                 source={{
-                  uri: `http://res.cloudinary.com/ddbpyte6h/image/upload/${
+                  uri: `https://res.cloudinary.com/ddbpyte6h/image/upload/${
                     this.state.night.imageUrl
                   }`,
                 }}>
