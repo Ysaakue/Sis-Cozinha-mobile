@@ -77,8 +77,7 @@ export default class SelecaoDias extends Component {
       headers: { Authorization: "bearer " + this.state.token }
     })
     .then(response => {
-      console.log(response);
-      
+
         if(response.data.data == null){
           this.setState({ semCardapio: true });
           
@@ -101,12 +100,9 @@ export default class SelecaoDias extends Component {
 
   keyExtractor = (item, index) => index.toString()
 
-  handleDay = (index) => {
-    
+  handleDay = (index) => {  
     const dia = list[index];
     const temp = this.state.dias[index];
-    console.log(this.state);
-
     const morning = temp.morning;
     const afternoon = temp.afternoon;
     const night = temp.night;
